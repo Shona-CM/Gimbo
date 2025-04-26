@@ -10,7 +10,7 @@
 class AnimSpriteSheetComponent : public SpriteComponent
 {
     public:
-        AnimSpriteSheetComponent(class Actor* owner, int drawOrder);
+        AnimSpriteSheetComponent(class ObjectBase* owner, int drawOrder);
         virtual ~AnimSpriteSheetComponent();
 
         void Draw(sf::RenderWindow& window) override;

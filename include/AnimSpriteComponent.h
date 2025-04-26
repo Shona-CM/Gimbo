@@ -10,7 +10,7 @@ class SpriteComponent;
 class AnimSpriteComponent : public SpriteComponent
 {
     public:
-        AnimSpriteComponent(class Actor* const owner, int drawOrder);
+        AnimSpriteComponent(class ObjectBase* const owner, int drawOrder);
         virtual ~AnimSpriteComponent();
 
         virtual void Update(sf::Time deltaTime);

@@ -8,7 +8,7 @@
 class Component
 {
     public:
-        Component(class Actor* const owner, int updateOrder = 100);
+        Component(class ObjectBase* const owner, int updateOrder = 100);
         virtual ~Component();
 
         virtual void Draw(sf::RenderWindow& window);
@@ -17,7 +17,7 @@ class Component
         std::uintptr_t GetId() const {return mId;}
 
     protected:
-        class Actor* const mOwner;
+        class ObjectBase* const mOwner;
         int mUpdateOrder;
         std::uintptr_t  mId;
 };

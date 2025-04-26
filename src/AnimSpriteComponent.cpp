@@ -3,7 +3,7 @@
 #include "AnimSpriteComponent.h"
 #include <iostream>
 
-AnimSpriteComponent::AnimSpriteComponent(class Actor* const owner, int drawOrder)
+AnimSpriteComponent::AnimSpriteComponent(class ObjectBase* const owner, int drawOrder)
     :SpriteComponent(owner, drawOrder)
 	,mCurrFrame(0.0f)
 	,mAnimFPS(24.0f)

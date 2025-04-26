@@ -2,10 +2,11 @@
 
 #include "SpriteComponent.h"
 #include "AnimSpriteComponent.h"
+#include "ObjectBase.h"
 #include <iostream>
 
 
-AnimSpriteSheetComponent::AnimSpriteSheetComponent(class Actor* owner, int drawOrder)
+AnimSpriteSheetComponent::AnimSpriteSheetComponent(class ObjectBase* owner, int drawOrder)
 	:SpriteComponent(owner, drawOrder)
 	, mCurrFrame(0.0f)
 	, mAnimFPS(24.0f)

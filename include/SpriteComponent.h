@@ -11,7 +11,7 @@
 class SpriteComponent : public Component
 {
     public:
-        SpriteComponent(class Actor* const owner, int drawOrder);
+        SpriteComponent(class ObjectBase* const owner, int drawOrder);
         virtual ~SpriteComponent();
 
         virtual void Draw(sf::RenderWindow& window);

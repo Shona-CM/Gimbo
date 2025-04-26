@@ -1,45 +1,26 @@
-#include "Actor.h"
+#include "Entity.h"
 #include <iostream>
-#include <bits/stdc++.h>
 
-Actor::Actor(Game* const game) : ObjectBase()
-    , mState(Active)
+Entity::Entity(Game* const game) : ObjectBase()
 	, mGame(game)
 {
+    //ctor
 }
 
-Actor::~Actor()
+Entity::~Entity()
 {
-    std::cout  <<  "clear all " <<  '\n';
+    std::cout  <<  "clear all for Entity" <<  '\n';
     mComponents.clear();
-    std::cout << "Delete Actor " << '\n';
+    std::cout << "Delete Entity " << '\n';
 }
 
-
-void Actor::Update(sf::Time deltaTime)
-{
-    UpdateComponents(deltaTime);
-}
-
-void Actor::UpdateComponents(sf::Time deltaTime)
-{
-    for(const auto& component : mComponents)
-    {
-       component->Update(deltaTime);
-    }
-}
-
-void Actor::UpdateActor(sf::Time deltaTime)
-{
-}
-
-void Actor::Draw(sf::RenderWindow& window)
+void Entity::Draw(sf::RenderWindow& window)
 {
   DrawComponents(window);
   DrawCollisionBox(window);
 }
 
-void Actor::DrawComponents(sf::RenderWindow& window)
+void Entity::DrawComponents(sf::RenderWindow& window)
 {
     for(const auto& component : mComponents)
     {
@@ -47,7 +28,7 @@ void Actor::DrawComponents(sf::RenderWindow& window)
     }
 }
 
-void Actor::AddComponent(std::unique_ptr<Component>component)
+void Entity::AddComponent(std::unique_ptr<Component>component)
 {
     // Find the insertion point in the sorted vector
     // (The first element with a order higher than me)
@@ -67,7 +48,7 @@ void Actor::AddComponent(std::unique_ptr<Component>component)
     std::cout << "Number  of components " << mComponents.size() << '\n';
 }
 
-void Actor::RemoveComponent(std::uintptr_t id)
+void Entity::RemoveComponent(std::uintptr_t id)
 {
     auto iter = mComponents.begin();
 	for (;iter != mComponents.end();++iter)
@@ -82,3 +63,5 @@ void Actor::RemoveComponent(std::uintptr_t id)
        mComponents.erase(iter);
 	}
 }
+
+

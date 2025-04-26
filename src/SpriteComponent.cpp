@@ -1,7 +1,7 @@
 #include "SpriteComponent.h"
-#include "Actor.h"
+#include "ObjectBase.h"
 
-SpriteComponent::SpriteComponent(class Actor* const owner, int drawOrder)
+SpriteComponent::SpriteComponent(class ObjectBase* const owner, int drawOrder)
     :Component(owner,drawOrder)
     ,mDrawOrder(drawOrder)
     ,mSpriteWidth(0)

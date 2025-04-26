@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Actor.h"
+#include "Entity.h"
 #include "SpriteComponent.h"
 #include "AnimSpriteComponent.h"
 #include "AnimSpriteSheetComponent.h"
@@ -46,15 +47,16 @@ void Game::LoadData()
 {
     GetFileTextures("./ImagePaths");
 
-    std::unique_ptr<Actor> temp = std::make_unique<Actor>(this);
-	temp->SetPosition(sf::Vector2f(400.0f, 384.0f));
+    std::unique_ptr<Actor> ship = std::make_unique<Actor>(this);
+	ship->SetPosition(sf::Vector2f(400.0f, 384.0f));
 
-	std::unique_ptr<AnimSpriteComponent> component = std::make_unique<AnimSpriteComponent>(temp.get(),100);
+	std::unique_ptr<AnimSpriteComponent> component = std::make_unique<AnimSpriteComponent>(ship.get(),100);
 	component->SetAnimSprites(&mTextureMapper,"ship",4);
 	component->SetFrameStartAndEnd(0,4);
-    temp->AddComponent(std::move(component));
+	ship->SetCollisionBox(400.0f, 384.0f,component->GetSpriteWidth(),component->GetSpriteHeight());
+    ship->AddComponent(std::move(component));
     //do all work on actor before moving
-	AddActor(std::move(temp));
+	AddActor(std::move(ship));
 
 
 
@@ -72,6 +74,7 @@ void Game::LoadData()
     std::unique_ptr<Actor> person = std::make_unique<Actor>(this);
 	person->SetPosition(sf::Vector2f(100.0f, 100.0f));
 	person->SetState(Actor::Active);
+	person->SetCollisionBox(100.0f,100.0f,64,64);
 
 	std::unique_ptr<AnimSpriteSheetComponent> component3 = std::make_unique<AnimSpriteSheetComponent>(person.get(),100);
 	component3->SetupSprite(&mTextureMapper,"per1");
@@ -85,13 +88,20 @@ void Game::LoadData()
 
     AddActor(std::move(person));
 
-    std::unique_ptr<Actor> platform1 = std::make_unique<Actor>(this);
-    platform1->SetStatic(true);
+    //change to entity the static object class
+    std::unique_ptr<Entity> platform1 = std::make_unique<Entity>(this);
     std::unique_ptr<SpriteComponent> platform1Sprite = std::make_unique<SpriteComponent>(platform1.get(),50);
     platform1Sprite->SetupSprite(&mTextureMapper,"plat1");
+
+    double spriteWidth = platform1Sprite->GetSpriteWidth();
+    double spriteHeight = platform1Sprite->GetSpriteHeight();
+    sf::Vector2f position = {300.0f,300.0f};
+
+    platform1->SetCollisionBox(position.x,position.y,spriteWidth,spriteHeight);
+
     platform1->AddComponent(std::move(platform1Sprite));
-	platform1->SetPosition(sf::Vector2f(300.0f, 500.0f));
-    AddActor(std::move(platform1));
+	platform1->SetPosition(sf::Vector2f(position.x,position.y));
+    AddEntity(std::move(platform1));
 }
 
 void Game::GetFileTextures(std::string filePath )
@@ -180,13 +190,11 @@ void Game::UpdateGame(sf::Time deltaTime)
 
     for (const auto& actor : mActors)
 	{
-	    if(actor->GetStatic() == false)
-	    {
-            auto currentPos = actor->GetPosition();
-            currentPos.x += movement.x;
-            currentPos.y += movement.y;
-            actor->SetPosition(currentPos);
-	    }
+	    auto currentPos = actor->GetPosition();
+        currentPos.x += movement.x;
+        currentPos.y += movement.y;
+        actor->SetPosition(currentPos);
+        actor->SetCollisionBox(currentPos.x,currentPos.y,actor->GetCollisionWidth(),actor->GetCollisionHeight());
 	}
 
     UpdateActors(deltaTime);
@@ -253,6 +261,11 @@ void Game::GenerateOutput()
 
    mWindow->draw(mCircle);
 
+   for(const auto& entity : mEntities)
+   {
+        entity->Draw(*mWindow);
+   }
+
    for(const auto& actor : mActors)
    {
         actor->Draw(*mWindow);
@@ -278,4 +291,10 @@ void Game::AddActor(std::unique_ptr<Actor> actor)
 	{
 		mActors.emplace_back(std::move(actor));
 	}
+}
+
+void Game::AddEntity(std::unique_ptr<Entity> entity)
+{
+     std::cout << "Adding Entity"  <<  '\n';
+     mEntities.emplace_back(std::move(entity));
 }

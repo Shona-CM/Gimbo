@@ -1,8 +1,8 @@
 #include "Component.h"
-#include "Actor.h"
+#include "ObjectBase.h"
 #include <iostream>
 
-Component::Component(Actor* const owner, int updateOrder)
+Component::Component(ObjectBase* const owner, int updateOrder)
     :mOwner(owner)
 	,mUpdateOrder(updateOrder)
 {

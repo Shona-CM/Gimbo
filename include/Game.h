@@ -23,6 +23,7 @@ class Game
 	void TranslateInput(sf::Keyboard::Key key, bool isPressed);
 
 	void AddActor(std::unique_ptr<class Actor> actor);
+	void AddEntity(std::unique_ptr<class Entity> entity);
 	bool IsEqual(const std::unique_ptr<Actor>& obj,std::uintptr_t & id);
 
 	const sf::RenderWindow* GetWindow() {return mWindow.get();}
@@ -41,8 +42,12 @@ class Game
     TextureMapper mTextureMapper;
 
     std::shared_ptr<sf::RenderWindow> mWindow;
+    //Actors all moving  objects
     std::vector<std::unique_ptr<class Actor>> mActors;
 	std::vector<std::unique_ptr<class Actor>> mPendingActors;
+
+	//Entities all non moving objects such as platforms
+	std::vector<std::unique_ptr<class Entity>> mEntities;
 
     sf::CircleShape mCircle;
 };
