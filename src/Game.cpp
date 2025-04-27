@@ -34,10 +34,6 @@ bool Game::Initialize()
     std::string title = "Neptune Game Engine";
     mWindow =  std::make_shared<sf::RenderWindow>(sf::VideoMode(800,600), title);
 
-    mCircle.setFillColor(sf::Color::Yellow);
-    mCircle.setRadius(40.0);
-    mCircle.setPosition(100.0f,100.0f);
-
     LoadData();
 
     return true;
@@ -47,8 +43,11 @@ void Game::LoadData()
 {
     GetFileTextures("./ImagePaths");
 
-    std::unique_ptr<Actor> ship = std::make_unique<Actor>(this);
+    //test AnimSprites - single frames of animation
+    /*std::unique_ptr<Actor> ship = std::make_unique<Actor>(this);
 	ship->SetPosition(sf::Vector2f(400.0f, 384.0f));
+	ship->SetName("Ship");
+	ship->SetGroup("Coin");
 
 	std::unique_ptr<AnimSpriteComponent> component = std::make_unique<AnimSpriteComponent>(ship.get(),100);
 	component->SetAnimSprites(&mTextureMapper,"ship",4);
@@ -56,25 +55,16 @@ void Game::LoadData()
 	ship->SetCollisionBox(400.0f, 384.0f,component->GetSpriteWidth(),component->GetSpriteHeight());
     ship->AddComponent(std::move(component));
     //do all work on actor before moving
-	AddActor(std::move(ship));
+	AddActor(std::move(ship));*/
 
-
-
-   /* std::unique_ptr<Actor> enemy = std::make_unique<Actor>(this);
-	enemy->SetPosition(sf::Vector2f(256.0f, 384.0f));
-
-	std::unique_ptr<AnimSpriteComponent> component2 = std::make_unique<AnimSpriteComponent>(enemy.get(),100);
-	component2->SetAnimSprites(&mTextureMapper,"eship",6);
-	component2->SetFrameStartAndEnd(0,6);
-    enemy->AddComponent(std::move(component2));
-    //do all work on actor before moving
-	AddActor(std::move(enemy));*/
-
-
+    //Test player as a sprite sheet
     std::unique_ptr<Actor> person = std::make_unique<Actor>(this);
-	person->SetPosition(sf::Vector2f(100.0f, 100.0f));
+    sf::Vector2f location = {350.0f,100.0f};
+	person->SetPosition(location);
 	person->SetState(Actor::Active);
-	person->SetCollisionBox(100.0f,100.0f,64,64);
+	person->SetCollisionBox(location.x,location.y,64,60);
+	person->SetName("Player");
+	person->SetGroup("Player");
 
 	std::unique_ptr<AnimSpriteSheetComponent> component3 = std::make_unique<AnimSpriteSheetComponent>(person.get(),100);
 	component3->SetupSprite(&mTextureMapper,"per1");
@@ -88,7 +78,7 @@ void Game::LoadData()
 
     AddActor(std::move(person));
 
-    //change to entity the static object class
+    //Add Static objects as platforms
     std::unique_ptr<Entity> platform1 = std::make_unique<Entity>(this);
     std::unique_ptr<SpriteComponent> platform1Sprite = std::make_unique<SpriteComponent>(platform1.get(),50);
     platform1Sprite->SetupSprite(&mTextureMapper,"plat1");
@@ -98,10 +88,18 @@ void Game::LoadData()
     sf::Vector2f position = {300.0f,300.0f};
 
     platform1->SetCollisionBox(position.x,position.y,spriteWidth,spriteHeight);
-
     platform1->AddComponent(std::move(platform1Sprite));
 	platform1->SetPosition(sf::Vector2f(position.x,position.y));
+	platform1->SetGroup("Platform");
     AddEntity(std::move(platform1));
+
+    std::unique_ptr<Entity> platform2 = std::make_unique<Entity>(this);
+    sf::Vector2f position2 = {0.0f,590.0f};
+    platform2->SetCollisionBox(position2.x,position2.y,800.0f,10.0f);
+    platform2->SetPosition(sf::Vector2f(position2.x,position2.y));
+	platform2->SetGroup("Platform");
+    AddEntity(std::move(platform2));
+
 }
 
 void Game::GetFileTextures(std::string filePath )
@@ -155,51 +153,38 @@ void Game::Run()
   }
 }
 
+void Game::ProcessInput()
+{
+  sf::Event event;
+
+  while(mWindow->pollEvent(event))
+  {
+     switch(event.type)
+     {
+        case sf::Event::KeyPressed :
+            TranslateInput(event.key.code,true);
+            break;
+        case sf::Event::KeyReleased :
+            TranslateInput(event.key.code,false);
+            break;
+        case sf::Event::Closed :
+            mIsRunning = false;
+            break;
+     }
+  }
+}
+
 void Game::UpdateGame(sf::Time deltaTime)
 {
-    sf::Vector2f movement(0.f,0.f);
-    auto speed = 5.f * 60.f;   //5 pixels per second
-    speed *= deltaTime.asSeconds();
-
-    //std::cout << deltaTime.asSeconds() << '\n';
-
-    if(mIsMovingUp)
-        movement.y -= speed;
-    if(mIsMovingDown)
-        movement.y += speed;
-    if(mIsMovingLeft)
-        movement.x -= speed;
-    if(mIsMovingRight)
-        movement.x += speed;
-
-    mCircle.move(movement);
-
-    auto currentPos = mCircle.getPosition();
-
-    if(currentPos.x < 0.f)
-        mCircle.setPosition(0.f,currentPos.y);
-
-    if(currentPos.x > 720.f)
-        mCircle.setPosition(720.f,currentPos.y);
-
-    if(currentPos.y < 0.f)
-        mCircle.setPosition(currentPos.x,0.f);
-
-    if(currentPos.y > 520.f)
-        mCircle.setPosition(currentPos.x,520.f);
 
     for (const auto& actor : mActors)
 	{
-	    auto currentPos = actor->GetPosition();
-        currentPos.x += movement.x;
-        currentPos.y += movement.y;
-        actor->SetPosition(currentPos);
-        actor->SetCollisionBox(currentPos.x,currentPos.y,actor->GetCollisionWidth(),actor->GetCollisionHeight());
+        ObjectBase::MovementActions actions = {mIsMovingLeft,mIsMovingRight,mIsMovingUp};
+        actor->UpdateMovement(actions,deltaTime);
 	}
 
     UpdateActors(deltaTime);
 }
-
 void Game::UpdateActors(sf::Time deltaTime)
 {
     // Update all actors
@@ -222,33 +207,12 @@ void Game::UpdateActors(sf::Time deltaTime)
      }
 }
 
-void Game::ProcessInput()
-{
-  sf::Event event;
 
-  while(mWindow->pollEvent(event))
-  {
-     switch(event.type)
-     {
-        case sf::Event::KeyPressed :
-            TranslateInput(event.key.code,true);
-            break;
-        case sf::Event::KeyReleased :
-            TranslateInput(event.key.code,false);
-            break;
-        case sf::Event::Closed :
-            mIsRunning = false;
-            break;
-     }
-  }
-}
 
 void Game::TranslateInput(sf::Keyboard::Key key, bool isPressed)
 {
-    if(key == sf::Keyboard::W)
+    if(key == sf::Keyboard::Space)
         mIsMovingUp = isPressed;
-    else if(key == sf::Keyboard::S)
-        mIsMovingDown = isPressed;
     else if(key == sf::Keyboard::A)
         mIsMovingLeft = isPressed;
     else if(key == sf::Keyboard::D)
@@ -258,8 +222,6 @@ void Game::TranslateInput(sf::Keyboard::Key key, bool isPressed)
 void Game::GenerateOutput()
 {
    mWindow->clear(sf::Color::Blue);
-
-   mWindow->draw(mCircle);
 
    for(const auto& entity : mEntities)
    {

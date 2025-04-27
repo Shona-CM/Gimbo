@@ -3,6 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <string>
+
 class ObjectBase
 {
     public:
@@ -11,6 +13,13 @@ class ObjectBase
             sf::Vector2f min;
             sf::Vector2f max;
         } AABB;
+
+        typedef struct
+        {
+            bool LeftPressed;
+            bool RightPressed;
+            bool JumpPressed;
+        } MovementActions;
 
 
         ObjectBase();
@@ -23,6 +32,11 @@ class ObjectBase
         void SetScale(float scale) {mScale = sf::Vector2f(scale,scale);}
         float GetRotation() const { return mRotation; }
         void SetRotation(float rotation) { mRotation = rotation; }
+
+        void SetName(std::string name) { mName = name;}
+        std::string GetName() const {return mName;}
+        void SetGroup(std::string group) { mGroup = group;}
+        std::string GetGroup() const {return mGroup;}
 
         void SetCollisionBox(float left,float top,float width, float height);
         void SetCollisionBox(AABB collisionBox);
@@ -39,6 +53,8 @@ class ObjectBase
         float mRotation;
         float mCollisionWidth;
         float mCollisionHeight;
+        std::string mName;
+        std::string mGroup;
         AABB mCollisionBox;
 };
 

@@ -15,6 +15,8 @@ class Game
 	void Run();
 	void Shutdown();
 
+	std::vector<std::unique_ptr<class Entity>> const& GetEntities() { return mEntities;}
+
   private:
     void ProcessInput();
 	void UpdateGame(sf::Time deltaTime);
@@ -48,8 +50,6 @@ class Game
 
 	//Entities all non moving objects such as platforms
 	std::vector<std::unique_ptr<class Entity>> mEntities;
-
-    sf::CircleShape mCircle;
 };
 
 #endif // GAME_H

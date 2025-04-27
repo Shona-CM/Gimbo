@@ -27,8 +27,13 @@ class Actor : public ObjectBase
         void Update(sf::Time deltaTime);
         void UpdateComponents(sf::Time deltaTime);
         virtual void UpdateActor(sf::Time deltaTime);
+        void UpdateMovement(ObjectBase::MovementActions actions,sf::Time deltaTime);
         void Draw(sf::RenderWindow& window);
         void DrawComponents(sf::RenderWindow& window);
+
+        void SetIsJumping(bool isJumping) {mIsJumping = isJumping;}
+        bool GetIsJumping() const {return mIsJumping;}
+        class Entity* CheckPlayerGrounded();
 
         State GetState() const { return mState; }
         void SetState(State state) { mState = state;}
@@ -39,6 +44,11 @@ class Actor : public ObjectBase
         Game* GetGame() {return mGame;}
 
     private:
+        bool mIsJumping;
+        bool mIsFalling;
+        float mWalkingSpeed;
+        float mJumpSpeed;
+        float mJumpStartHeight;
         State mState;
 	    Game* const mGame;   // do not manually delete !!!
 

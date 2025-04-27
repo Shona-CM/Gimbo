@@ -7,6 +7,8 @@ ObjectBase::ObjectBase()
 	, mRotation(0.0f)
 	, mCollisionWidth(0.0f)
 	, mCollisionHeight(0.0f)
+	, mName("")
+	, mGroup("")
 {
     //ctor
 }
